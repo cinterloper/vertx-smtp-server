@@ -1,0 +1,56 @@
+buildscript {
+    repositories { jcenter() }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.1.1'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+version = '3.0.0'
+
+if (!JavaVersion.current().java8Compatible) {
+    throw new IllegalStateException('''A Haiku:
+                                      |  This needs Java 8,
+                                      |  You are using something else,
+                                      |  Refresh. Try again.'''.stripMargin())
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url = 'http://oss.sonatype.org/content/repositories/snapshots/'
+    }
+}
+
+dependencies {
+    compile 'io.vertx:vertx-core:3.0.0'
+    compile 'io.vertx:vertx-lang-groovy:3.0.0'
+    compile 'io.vertx:vertx-auth-common:3.0.0'
+    compile 'io.vertx:vertx-auth-shiro:3.0.0'
+    compile 'io.vertx:vertx-auth-jwt:3.0.0'
+    compile 'com.orientechnologies:orientdb-server:2.1.0'
+    compile 'com.orientechnologies:orientdb-core:2.1.0'
+    compile 'com.orientechnologies:orientdb-enterprise:2.1.0'
+    compile 'com.orientechnologies:orientdb-client:2.1.0'
+    compile 'org.apache.directory.server:apacheds-all:2.0.0-M20'
+    compile 'org.apache.directory.api:api-all:1.0.0-M31'
+    compile 'org.subethamail:subethasmtp:3.1.7'
+    compile 'org.apache.james:apache-james-mailbox-maildir:0.5'
+}
+
+shadowJar {
+    classifier = 'fat'
+    manifest {
+        attributes 'Main-Class': 'io.vertx.core.Starter'
+        attributes 'Main-Verticle': 'groovy:mail.groovy'
+    }
+    mergeServiceFiles {
+        include 'META-INF/services/io.vertx.core.spi.VerticleFactory'
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.0'
+}
