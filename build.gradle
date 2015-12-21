@@ -8,7 +8,7 @@ buildscript {
 apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 
-version = '3.0.0'
+version = '3.2.0'
 
 if (!JavaVersion.current().java8Compatible) {
     throw new IllegalStateException('''A Haiku:
@@ -25,15 +25,11 @@ repositories {
 }
 
 dependencies {
-    compile 'io.vertx:vertx-core:3.0.0'
-    compile 'io.vertx:vertx-lang-groovy:3.0.0'
-    compile 'io.vertx:vertx-auth-common:3.0.0'
-    compile 'io.vertx:vertx-auth-shiro:3.0.0'
-    compile 'io.vertx:vertx-auth-jwt:3.0.0'
-    compile 'com.orientechnologies:orientdb-server:2.1.0'
-    compile 'com.orientechnologies:orientdb-core:2.1.0'
-    compile 'com.orientechnologies:orientdb-enterprise:2.1.0'
-    compile 'com.orientechnologies:orientdb-client:2.1.0'
+    compile 'io.vertx:vertx-core:3.2.0'
+    compile 'io.vertx:vertx-lang-groovy:3.2.0'
+    compile 'io.vertx:vertx-auth-common:3.2.0'
+    compile 'io.vertx:vertx-auth-shiro:3.2.0'
+    compile 'io.vertx:vertx-auth-jwt:3.2.0'
     compile 'org.apache.directory.server:apacheds-all:2.0.0-M20'
     compile 'org.apache.directory.api:api-all:1.0.0-M31'
     compile 'org.subethamail:subethasmtp:3.1.7'
