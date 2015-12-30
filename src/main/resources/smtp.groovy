@@ -1,9 +1,7 @@
 /**
  * Created by grant on 8/20/15.
  */
-/**
- * Created by grant on 8/20/15.
- */
+
 import io.vertx.core.logging.Logger
 import org.subethamail.smtp.server.SMTPServer;
 import org.subethamail.smtp.*;
