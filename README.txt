@@ -1,6 +1,6 @@
 This should listen on port 25000 and put the mail on the vertx bus address "mail"
 
-it will accept all messages delivered to it. you should implement filters/security infront with a more common mail daemon
+it will accept all messages delivered to it. you should implement filters/security infront with a more common mail relay daemon
 
 
 
