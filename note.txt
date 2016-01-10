@@ -1,0 +1,2 @@
+eb address as destionation email?
+reject email if no handlers?
