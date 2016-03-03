@@ -33,7 +33,6 @@ dependencies {
     compile 'org.apache.directory.server:apacheds-all:2.0.0-M20'
     compile 'org.apache.directory.api:api-all:1.0.0-M31'
     compile 'org.subethamail:subethasmtp:3.1.7'
-    compile 'org.apache.james:apache-james-mailbox-maildir:0.5'
 }
 
 shadowJar {
