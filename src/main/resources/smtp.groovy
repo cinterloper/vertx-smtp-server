@@ -11,8 +11,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import io.vertx.core.json.JsonObject
-
-
 MyMessageHandlerFactory myFactory = new MyMessageHandlerFactory(vertx);
 smtpServer = new SMTPServer(myFactory);
 smtpServer.setPort(25000);
@@ -31,18 +29,16 @@ public class MyMessageHandlerFactory implements MessageHandlerFactory {
     }
 }
 
+
 class MailHandler implements MessageHandler {
     MessageContext ctx;
     def vx
     Logger logger
     String from, recipient
-
     public MailHandler(MessageContext ctx, vtx) {
-
         this.ctx = ctx;
         vx = vtx;
         this.logger = io.vertx.core.logging.LoggerFactory.getLogger(this.getClass().getName())
-
     }
 
     public void from(String f) throws RejectException {
