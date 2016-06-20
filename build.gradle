@@ -1,48 +1,36 @@
-buildscript {
-    repositories { jcenter() }
-    dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:1.1.1'
-    }
-}
-
-apply plugin: 'java'
-apply plugin: 'groovy'
-
-apply plugin: 'com.github.johnrengelman.shadow'
-
-version = '3.2.1'
-
-if (!JavaVersion.current().java8Compatible) {
-    throw new IllegalStateException('''A Haiku:
-                                      |  This needs Java 8,
-                                      |  You are using something else,
-                                      |  Refresh. Try again.'''.stripMargin())
+plugins {
+  id 'java'
+  id 'groovy'
+  id 'application'
+  id 'com.github.johnrengelman.shadow' version '1.2.2'
 }
 
 repositories {
-    mavenCentral()
-    maven {
-        url = 'http://oss.sonatype.org/content/repositories/snapshots/'
-    }
+  jcenter()
 }
 
+def libversion = '3.2.1'
+sourceCompatibility = '1.8'
+version = "${libversion}-1"
 dependencies {
-    compile 'io.vertx:vertx-core:3.2.1'
-    compile 'io.vertx:vertx-lang-groovy:3.2.1'
-    compile 'org.subethamail:subethasmtp:3.1.7'
+  compile "io.vertx:vertx-core:$libversion"
+  compile "io.vertx:vertx-lang-groovy:$libversion"
+  compile 'org.subethamail:subethasmtp:3.1.7'
 }
+
+mainClassName = 'io.vertx.core.Launcher'
 
 shadowJar {
+  classifier = 'fat'
     classifier = 'fat'
     manifest {
-        attributes 'Main-Class': 'io.vertx.core.Starter'
         attributes 'Main-Verticle': 'groovy:mail.groovy'
-    }
-    mergeServiceFiles {
-        include 'META-INF/services/io.vertx.core.spi.VerticleFactory'
-    }
+  }
+  mergeServiceFiles {
+    include 'META-INF/services/io.vertx.core.spi.VerticleFactory'
+  }
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.0'
+  gradleVersion = '2.8'
 }
