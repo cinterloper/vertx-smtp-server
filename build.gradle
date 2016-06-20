@@ -2,11 +2,41 @@ plugins {
   id 'java'
   id 'groovy'
   id 'application'
+  id 'maven-publish'
   id 'com.github.johnrengelman.shadow' version '1.2.2'
 }
+def GITHUB_TOKEN = System.getenv("GITHUB_TOKEN")
+def AWS_MVN_BUCKET = System.getenv("AWS_MVN_BUCKET")
+def AWS_DEFAULT_REGION = System.getenv("AWS_DEFAULT_REGION")
+def AWS_ACCESS_KEY_ID = System.getenv("AWS_ACCESS_KEY_ID")
+def AWS_SECRET_ACCESS_KEY = System.getenv("AWS_SECRET_ACCESS_KEY")
+def USER = System.getenv("USER")
 
 repositories {
   jcenter()
+}
+
+publishing {
+    repositories {
+	mavenLocal()
+        if (AWS_MVN_BUCKET && !AWS_MVN_BUCKET.allWhitespace) {
+            maven {
+                url "s3://$AWS_MVN_BUCKET/maven2"
+                credentials(AwsCredentials) {
+                    accessKey AWS_ACCESS_KEY_ID
+                    secretKey AWS_SECRET_ACCESS_KEY
+                }
+            }
+        }
+    }
+
+    publications {
+        mavenJava(MavenPublication) {
+            groupId 'net.iowntheinter'
+            artifactId 'vertx-smtp-server'
+            from components.java
+        }
+    }
 }
 
 def libversion = '3.2.1'
