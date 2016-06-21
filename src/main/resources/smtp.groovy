@@ -3,21 +3,25 @@
  */
 
 import io.vertx.core.logging.Logger
+import io.vertx.groovy.core.Vertx
 import org.subethamail.smtp.server.SMTPServer;
 import org.subethamail.smtp.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
+import io.vertx.groovy.core.buffer.Buffer
 import io.vertx.core.json.JsonObject
+
+import java.security.MessageDigest
+
 MyMessageHandlerFactory myFactory = new MyMessageHandlerFactory(vertx);
 smtpServer = new SMTPServer(myFactory);
 smtpServer.setPort(25000);
 smtpServer.start();
 
 public class MyMessageHandlerFactory implements MessageHandlerFactory {
-    def vx
+    Vertx vx
 
     MyMessageHandlerFactory(vertx) {
         vx = vertx
@@ -32,9 +36,10 @@ public class MyMessageHandlerFactory implements MessageHandlerFactory {
 
 class MailHandler implements MessageHandler {
     MessageContext ctx;
-    def vx
+    Vertx vx
     Logger logger
     String from, recipient
+
     public MailHandler(MessageContext ctx, vtx) {
         this.ctx = ctx;
         vx = vtx;
@@ -57,8 +62,11 @@ class MailHandler implements MessageHandler {
         logger.info("= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =");
         def strdata = this.convertStreamToString(data);
         println(strdata)
-        def eb = vx.eventBus()
-        eb.send("mail", [FROM:from, RCPT:recipient, data:strdata])
+        this.testCreate(recipient)
+        this.testCreate("${recipient}/${from}")
+        String dst = "${recipient}/${from}/${generateMD5_A(strdata as String )}.mail"
+        vx.fileSystem().writeFileBlocking(dst, Buffer.buffer(strdata as String))
+        vx.eventBus().send("mail", [FROM: from, RCPT: recipient, path: dst])
         logger.info("= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =");
     }
 
@@ -79,6 +87,16 @@ class MailHandler implements MessageHandler {
             e.printStackTrace();
         }
         return sb.toString();
+    }
+    private boolean testCreate (String path){
+        if(!vx.fileSystem().existsBlocking(path)){
+           try{ vx.fileSystem().mkdirBlocking(path)}catch(e){
+               logger.error(e)
+           }
+        }
+    }
+    def generateMD5_A(String s){
+        MessageDigest.getInstance("MD5").digest(s.bytes).encodeHex().toString()
     }
 
 }

@@ -11,4 +11,3 @@ def options = [
 ]
 logger.info("deploying with config: " + options)
 vertx.deployVerticle('smtp.groovy', options)
-vertx.deployVerticle('filewriter.groovy', options)
