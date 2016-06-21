@@ -13,23 +13,31 @@ import java.io.InputStreamReader;
 import io.vertx.groovy.core.buffer.Buffer
 import io.vertx.core.json.JsonObject
 
+import java.nio.file.Path
 import java.security.MessageDigest
 
 MyMessageHandlerFactory myFactory = new MyMessageHandlerFactory(vertx);
 smtpServer = new SMTPServer(myFactory);
-smtpServer.setPort(25000);
+
+if(System.getenv("SMTP_PORT").toInteger())
+    smtpServer.setPort(System.getenv("SMTP_PORT").toInteger())
+else
+    smtpServer.setPort(25000)
 smtpServer.start();
 
 public class MyMessageHandlerFactory implements MessageHandlerFactory {
     Vertx vx
+    def strpath = ""
 
     MyMessageHandlerFactory(vertx) {
+        if(System.getenv("SMTP_STORE_DIR"))
+            strpath = System.getenv("SMTP_STORE_DIR") + '/'
+
         vx = vertx
     }
 
     public MessageHandler create(MessageContext ctx) {
-        return new MailHandler(ctx, vx);
-
+        return new MailHandler(ctx, strpath, vx);
     }
 }
 
@@ -38,11 +46,12 @@ class MailHandler implements MessageHandler {
     MessageContext ctx;
     Vertx vx
     Logger logger
-    String from, recipient
+    String from, recipient, dstfl, strpath
 
-    public MailHandler(MessageContext ctx, vtx) {
+    public MailHandler(MessageContext ctx, s, vtx) {
         this.ctx = ctx;
         vx = vtx;
+        strpath = s;
         this.logger = io.vertx.core.logging.LoggerFactory.getLogger(this.getClass().getName())
     }
 
@@ -58,20 +67,18 @@ class MailHandler implements MessageHandler {
 
     public void data(InputStream data) throws IOException {
 
-        logger.info("MAIL DATA");
-        logger.info("= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =");
+        logger.debug("MAIL DATA");
         def strdata = this.convertStreamToString(data);
-        println(strdata)
-        this.testCreate(recipient)
-        this.testCreate("${recipient}/${from}")
-        String dst = "${recipient}/${from}/${generateMD5_A(strdata as String )}.mail"
-        vx.fileSystem().writeFileBlocking(dst, Buffer.buffer(strdata as String))
-        vx.eventBus().send("mail", [FROM: from, RCPT: recipient, path: dst])
-        logger.info("= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =");
+        logger.debug(strdata)
+        this.testCreate("${strpath}${recipient}")
+        this.testCreate("${strpath}${recipient}/${from}")
+        dstfl = "${strpath}${recipient}/${from}/${generateMD5_A(strdata as String )}.mail"
+        vx.fileSystem().writeFileBlocking(dstfl, Buffer.buffer(strdata as String))
+        vx.eventBus().send("mail", [FROM: from, RCPT: recipient, path: dstfl])
     }
 
     public void done() {
-        logger.info("Finished");
+        logger.info("Finished ${dstfl}");
     }
 
     public String convertStreamToString(InputStream is) {
